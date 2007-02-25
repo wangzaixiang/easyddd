@@ -4,7 +4,7 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-import ddd.gwt.client.model.ClientBeanInfo;
+import ddd.gwt.client.model.CBeanInfo;
 import ddd.gwt.client.service.DomainGatewayAsync;
 import ddd.gwt.client.ui.SimpleDataWidget;
 
@@ -22,7 +22,7 @@ public class BookStoreModule implements EntryPoint {
 			public void onSuccess(Object result) {
 				String json = (String)result;
 				
-				ClientBeanInfo cbi = null;	// convert from json
+				CBeanInfo cbi = null;	// convert from json
 				
 				SimpleDataWidget dataWidget = new SimpleDataWidget();
 				dataWidget.setDataModel((JSONValue) result);
