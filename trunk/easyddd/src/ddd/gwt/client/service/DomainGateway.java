@@ -2,6 +2,8 @@ package ddd.gwt.client.service;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 
+import ddd.gwt.client.model.CBeanInfo;
+
 public interface DomainGateway extends RemoteService {
 
 	/**
@@ -19,6 +21,6 @@ public interface DomainGateway extends RemoteService {
 	/**
 	 * return the JSON representation of BeanInfo
 	 */
-	String queryBeanInfo(String serviceId, String objectId);
+	CBeanInfo queryBeanInfo(String serviceId, String objectId);
 	
 }

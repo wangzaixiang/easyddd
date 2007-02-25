@@ -8,5 +8,7 @@ public class CBeanInfo extends JSONWrapper {
 		super(json);
 	}
 
-		
+	public CPropertyInfo getPropertyInfo(String key) {
+		return null;
+	}
 }
