@@ -1,5 +1,5 @@
 public interface IFace1 {
-	void method1(String s1, IFace1 f1, Iface2 f2);
+	Iface2 method1(String s1, IFace1 f1, Iface2 f2);
 }
 
 public interface IFace2 {
@@ -17,7 +17,8 @@ return
 	method1: function(s, f1, f2){ // f1, f2 is now a JavaScript exchange 
 		var if1 = @Utils::doImportIface1()(f1); // import the JavaScriptStub as interface
 		var if2 = @Utils::doImport()(f2);
-		iface1.@IFace1::method1(..)(s, xf1, xf2);
+		var res = iface1.@IFace1::method1(..)(s, xf1, xf2);
+		return @Utils.doExport(res);
 	}
 }
 
