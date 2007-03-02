@@ -1,0 +1,38 @@
+public interface IFace1 {
+	void method1(String s1, IFace1 f1, Iface2 f2);
+}
+
+public interface IFace2 {
+}
+
+doExport(IFace1 iface1){
+
+if(iface1 instanceof IntefaceStub){
+	InterfaceStub s = iface1;
+	return s.getJavascriptStub;
+}
+else
+return
+{
+	method1: function(s, f1, f2){ // f1, f2 is now a JavaScript exchange 
+		var if1 = @Utils::doImportIface1()(f1); // import the JavaScriptStub as interface
+		var if2 = @Utils::doImport()(f2);
+		iface1.@IFace1::method1(..)(s, xf1, xf2);
+	}
+}
+
+doImportIFace1(js){
+	return new IFace1Stub(js)
+}
+
+public class IFace1Stub implements IFace1, InterfaceStub {
+
+	private JavaScriptObject jsExchange;
+
+	void method1(String s1, IFace f1, IFace f2) /*-{
+		var xf1 = @Utils::doExport(f1);
+		
+		jsExchange.method1(s1, xf1, xf2);
+	}-*/
+
+}
