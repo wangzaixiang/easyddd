@@ -70,4 +70,9 @@ public class PortletWidget extends SimplePanel implements PortletContainer {
 		return null;
 	}
 
+	public void replaceWith(String moduleName, String[] args) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
