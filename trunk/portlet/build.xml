@@ -1,0 +1,51 @@
+
+<project default="compile">
+	
+	<property name="gwt.home" value="/home/whg/gwt-linux-1.3.3"/>
+	
+	<path id="gwt.path">
+		<pathelement path="${gwt.home}/gwt-dev-linux.jar"/>
+		<pathelement path="${gwt.home}/gwt-dev-windows.jar"/>
+		<pathelement path="${gwt.home}/gwt-user.jar"/>
+	</path>
+
+	<path id="project.path">
+		<pathelement path="${basedir}/src"/>
+		<pathelement path="${basedir}/bin"/>
+	</path>
+	
+	<target name="prepare">
+		<mkdir dir="build"/>
+		<mkdir dir="build/www"/>
+	</target>
+	
+	<target name="compile" depends="prepare">
+		<compile-module module-name="examples.example_1.Example_1"/>
+		<compile-module module-name="examples.portlet_1.Portlet_1"/>
+	</target>
+
+	<macrodef name="compile-module">
+		<attribute name="module-name"/>
+		<sequential>
+			<java 
+				classname="com.google.gwt.dev.GWTCompiler"
+				failonerror="true"
+				fork="true"
+				>
+	
+				<arg value="-out"/>
+				<arg value="${basedir}/build/www"/>
+				<arg value="-style"/>
+				<arg value="DETAILED"/>
+				<arg value="@{module-name}"/>
+				
+				<classpath>
+					<path refid="gwt.path"/>
+					<path refid="project.path"/>
+				</classpath>
+				
+			</java>
+		</sequential>
+	</macrodef>
+
+</project>
