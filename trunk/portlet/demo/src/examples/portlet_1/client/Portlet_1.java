@@ -9,12 +9,11 @@ import com.google.gwt.user.client.Window;
 public class Portlet_1 implements EntryPoint, PortletInfo{
 	
 	public void onModuleLoad() {
-		Window.alert("portlet 1");
 		PortletContext.getInstance().register(this);
 	}
 
 	public String getName() {
-		return "portlet-1";
+		return "portlet_1";
 	}
 	
 }

@@ -11,6 +11,7 @@
 
 	<path id="project.path">
 		<pathelement path="${basedir}/src"/>
+		<pathelement path="${basedir}/demo/src"/>
 		<pathelement path="${basedir}/bin"/>
 	</path>
 	
