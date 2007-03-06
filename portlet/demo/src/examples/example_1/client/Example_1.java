@@ -13,7 +13,7 @@ public class Example_1 {
 
 	public void onModuleLoad() {
 		int size = PortletContext.getInstance().getLength();
-		Window.alert("example 1 : " + size);
+		Window.alert("the count of registered modules : " + size);
 	}
 
 }
