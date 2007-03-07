@@ -1,26 +1,28 @@
-package portlet.client;
+package portlet.client.impl;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import portlet.client.PortletInfo;
+
 import com.google.gwt.user.client.Window;
 
-public class PortletContext {
+public class DefaultPortletContext {
 	
-	private static native void put(PortletContext portletContext) /*-{
+	private static native void put(DefaultPortletContext portletContext) /*-{
 		$wnd.__portlet_context = portletContext;
 	}-*/;
 	
-	private static native PortletContext get() /*-{
+	private static native DefaultPortletContext get() /*-{
 		return $wnd.__portlet_context || null;
 	}-*/;
 	
-	public static PortletContext getInstance() {
+	public static DefaultPortletContext getInstance() {
 
-		PortletContext instance = get();
+		DefaultPortletContext instance = get();
 		
 		if ( null == instance ) {
-			instance = new PortletContext();
+			instance = new DefaultPortletContext();
 			put(instance);
 		}
 		
@@ -33,7 +35,7 @@ public class PortletContext {
 	
 	private List modules;
 	
-	private PortletContext() {
+	private DefaultPortletContext() {
 		modules = new ArrayList();
 		//TODO:
 		getLength();
