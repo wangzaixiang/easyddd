@@ -36,8 +36,8 @@
 	
 				<arg value="-out"/>
 				<arg value="${basedir}/build/www"/>
-				<arg value="-style"/>
-				<arg value="DETAILED"/>
+				<!-- arg value="-style"/>
+				<arg value="DETAILED"/ -->
 				<arg value="@{module-name}"/>
 				
 				<classpath>
