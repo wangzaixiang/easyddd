@@ -23,6 +23,7 @@
 	<target name="compile" depends="prepare">
 		<compile-module module-name="examples.example_1.Example_1"/>
 		<compile-module module-name="examples.portlet_1.Portlet_1"/>
+		<compile-module module-name="examples.portlet_2.Portlet_2"/>
 	</target>
 
 	<macrodef name="compile-module">
@@ -36,8 +37,8 @@
 	
 				<arg value="-out"/>
 				<arg value="${basedir}/build/www"/>
-				<!-- arg value="-style"/>
-				<arg value="DETAILED"/ -->
+				<arg value="-style"/>
+				<arg value="DETAILED"/>
 				<arg value="@{module-name}"/>
 				
 				<classpath>
