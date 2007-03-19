@@ -259,7 +259,7 @@ ModuleControlBlocks.prototype.injectFrames = function() {
     
 /*@cc_on
     // prevent extra clicky noises on IE
-    return;
+    //return;
 @*/
 
     if (iframe.contentWindow) {
@@ -536,6 +536,9 @@ function __gwt_latchAndLaunch() {
   if (ready) {
     // Yes: run entry points.
     __gwt_moduleControlBlocks.run();
+    // portlet-code-begin
+    window.__gwt_loadModules_is_running = false;
+    // portlet-code-end
   } else {
     // No: try again soon.
     window.setTimeout(__gwt_latchAndLaunch, __gwt_retryWaitMillis);
@@ -553,7 +556,7 @@ function __gwt_loadModules() {
     window.setTimeout(__gwt_loadModules, __gwt_retryWaitMillis);
     return;
   }
-
+  
   // Inject a frame for each module.
   __gwt_moduleControlBlocks.injectFrames();
 
@@ -584,6 +587,9 @@ function __gwt_bootstrap() {
   __gwt_processMetas();
 
   // Load any modules.
+  // portlet-code-begin
+  window.__gwt_loadModules_is_running = true;
+  // portlet-code-end
   __gwt_loadModules();
 }
 
