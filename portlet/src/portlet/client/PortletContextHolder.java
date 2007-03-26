@@ -14,13 +14,17 @@ public class PortletContextHolder {
 		$wnd.__portlet_context = jsoPortletContext;
 	}-*/;
 	
-	public static PortletContext getPortletContext() {
+	static void init() {
 		JavaScriptObject jso = get();
 		if ( null == jso ) {
 			PortletContext pc = new DefaultPortletContext();
 			jso = PortletContext.Helper.doExport(pc);
 			put(jso);
 		}
+	}
+	
+	public static PortletContext getPortletContext() {
+		JavaScriptObject jso = get();
 		return PortletContext.Helper.doImport(jso);
 	}
 	

@@ -21,6 +21,7 @@
 	</target>
 	
 	<target name="compile" depends="prepare">
+		<compile-module module-name="portlet.Portlet"/>
 		<compile-module module-name="examples.example_1.Example_1"/>
 		<compile-module module-name="examples.portlet_1.Portlet_1"/>
 		<compile-module module-name="examples.portlet_2.Portlet_2"/>
