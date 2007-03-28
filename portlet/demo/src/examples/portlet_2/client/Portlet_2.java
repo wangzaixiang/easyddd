@@ -18,6 +18,8 @@ public class Portlet_2 implements EntryPoint, PortletInfo {
 		return "portlet_2";
 	}
 
-	
+	public void create(String containerID, String dataID) {
+		
+	}	
 }
 

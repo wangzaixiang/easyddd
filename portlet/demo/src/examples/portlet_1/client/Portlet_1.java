@@ -17,6 +17,9 @@ public class Portlet_1 implements EntryPoint, PortletInfo {
 	public String getName() {
 		return "portlet_1";
 	}
-	
+
+	public void create(String containerID, String dataID) {
+		
+	}
 }
 
