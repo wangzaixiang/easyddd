@@ -15,6 +15,10 @@ public interface PortletInfo {
 		public native String getName () /*-{
 			return this.@portlet.client.PortletInfo.Stub::jso.getName();
 		}-*/;
+		
+		public native void create(String containerID, String dataID) /*-{
+			this.@portlet.client.PortletInfo.Stub::jso.create(containerID, dataID);
+		}-*/;
 	}
 	
 	public static class Helper implements PortableObjectHelper {
@@ -23,6 +27,9 @@ public interface PortletInfo {
 			return {
 				getName: function() {
 					return pi.@portlet.client.PortletInfo::getName()();
+				},
+				create: function(containerID, dataID) {
+					return pi.@portlet.client.PortletInfo::create(Ljava/lang/String;Ljava/lang/String;)(containerID, dataID);
 				}
 			};
 		}-*/;
@@ -33,4 +40,6 @@ public interface PortletInfo {
 	}
 
 	String getName();
+	
+	void create(String containerId, String dataId);
 }

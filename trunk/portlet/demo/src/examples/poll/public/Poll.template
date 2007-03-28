@@ -1,0 +1,12 @@
+
+		<div>
+			&nbsp;Question:<span class="_question fds" style="font-weight: bold;"></span><br/>
+			Yes Count:<span class="_yes_count" style="font-weight: bold;"></span><br/>
+			&nbsp;No Count:<span class="_no_count" style="font-weight: bold;"></span><br/>
+			<span class="_yes_button"></span><span class="_no_button"></span>
+		</div>
+		
+<!--		
+<div>&nbsp;Question:<span class="_question fds" style="font-weight: bold;"></span><br/>Yes Count:<span class="_yes_count" style="font-weight: bold;"></span><br/>&nbsp;No Count:<span class="_no_count" style="font-weight: bold;"></span><br/><span class="_yes_button"></span><span class="_no_button"></span></div>
+<div>&nbsp;Question:<span class='_question fds' style='font-weight: bold;'></span><br/>Yes Count:<span class='_yes_count' style='font-weight: bold;'></span><br/>&nbsp;No Count:<span class='_no_count' style='font-weight: bold;'></span><br/><span class='_yes_button'></span><span class='_no_button'></span></div>
+-->

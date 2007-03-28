@@ -3,12 +3,17 @@ package examples.example_1.client;
 import portlet.client.DynamicLoadTask;
 import portlet.client.PortletContext;
 import portlet.client.PortletContextHolder;
+import portlet.client.PortletInfo;
 
 import com.google.gwt.user.client.Window;
 
 public class Example_1 implements DynamicLoadTask {
 
-	public native void onModuleLoad() /*-{
+	public void onModuleLoad() {
+		onModuleLoadStage2();
+	}
+	
+	public native void dynLoad() /*-{
 		if ( $wnd.__count ) {
 			$wnd.__count++;
 		} else {
@@ -29,11 +34,21 @@ public class Example_1 implements DynamicLoadTask {
 	}-*/;
 
 	public void onModuleLoadStage2() {
+		PortletInfo pollInfo = null;
 		PortletContext pc = PortletContextHolder.getPortletContext();
 		int count = pc.getLength();
 		Window.alert("count of modules: " + count);
 		for ( int i = 0; i < count; i++ ) {
-			Window.alert("registered portlet: " + pc.getPortletInfo(i).getName());
+			String name = pc.getPortletInfo(i).getName();
+			Window.alert("registered portlet: " + name);
+			if ( "poll".equals(name) ) {
+				pollInfo = pc.getPortletInfo(i);
+			}
+		}
+		//
+		if ( null != pollInfo ) {
+			pollInfo.create("_poll_container_1", "001");
+			pollInfo.create("_poll_container_2", "002");
 		}
 	}
 

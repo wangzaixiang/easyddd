@@ -21,10 +21,12 @@
 	</target>
 	
 	<target name="compile" depends="prepare">
-		<compile-module module-name="portlet.Portlet"/>
-		<compile-module module-name="examples.example_1.Example_1"/>
+		<!--compile-module module-name="portlet.Portlet"/>
 		<compile-module module-name="examples.portlet_1.Portlet_1"/>
 		<compile-module module-name="examples.portlet_2.Portlet_2"/>
+		<compile-module module-name="examples.poll.Poll"/-->
+		<compile-module module-name="examples.poll.PollInfo"/>
+		<compile-module module-name="examples.example_1.Example_1"/>
 	</target>
 
 	<macrodef name="compile-module">
