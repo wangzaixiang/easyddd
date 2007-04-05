@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class Poll {
 
-	private Element container;
+	private RootPanel container;
 	
 	//
 	
@@ -43,34 +43,34 @@ public class Poll {
 
 	private int noCount;
 
-	public Poll(Element container, String pollid) {
+	public Poll(RootPanel container, String pollid) {
 		init(container, pollid);
 	}
 
 	public Poll(String containerid, String pollid) {
-		init(RootPanel.get(containerid).getElement(), pollid);
+		init(RootPanel.get(containerid), pollid);
 	}
 
-	private void init(Element container, String pollid) {
+	private void init(RootPanel container, String pollid) {
 		this.container = container;
 		this.pollid = pollid;
-		injectTemplate(container, "Poll.template");
+		this.initStage2();
 	}
 	
 	// abstract
 	protected void initStage2() {
 
 		lblQuestion = new Label();
-		get("_question").add(lblQuestion);
+		this.container.add(lblQuestion);
 
 		lblYesCount = new Label();
-		get("_yes_count").add(lblYesCount);
+		this.container.add(lblYesCount);
 
 		lblNoCount = new Label();
-		get("_no_count").add(lblNoCount);
+		this.container.add(lblNoCount);
 
 		btnYes = new Button("YES");
-		get("_yes_button").add(btnYes);
+		this.container.add(btnYes);
 		btnYes.addClickListener(new ClickListener() {
 			public void onClick(Widget sender) {
 				yesCount++;
@@ -80,7 +80,7 @@ public class Poll {
 		});
 		
 		btnNo = new Button("NO");
-		get("_no_button").add(btnNo);
+		this.container.add(btnNo);
 		btnNo.addClickListener(new ClickListener() {
 			public void onClick(Widget sender) {
 				noCount++;
@@ -130,78 +130,5 @@ public class Poll {
 		noCount = Integer.valueOf(Cookies.getCookie(pollid + ".nocount"))
 				.intValue();
 	}
-	
-	//
-	// TODO: the following code should be moved to super class
-	//
 
-	protected AbsolutePanel get(String className) {
-		Element elem = getByClassName(container, className);		
-		class Panel extends AbsolutePanel {
-			public Panel(Element elem) {
-			    setElement(elem);
-			    onAttach();
-			}
-		}
-		return new Panel(elem);
-	}
-
-	protected void injectTemplate(final Element holder, String url) {
-		doGet(url, new RequestCallback() {
-			public void onError(Request req, Throwable ex) {
-			}
-			public void onResponseReceived(Request req, Response resp) {
-				//initStage3();
-				//Window.alert(resp.getText());
-				injectTemplateStage2(holder, resp.getText());
-			}
-		});
-	}
-
-	private void injectTemplateStage2(Element holder, String template) {
-		setInnerHTML(holder, template);
-		initStage2();
-	}
-
-	private native Element getByClassName(Element elem, String className)/*-{
-		var findElementByClassName = function(baseElements, className, maxDepth) {
-			if ( ! ( baseElements instanceof Array ) )
-				baseElements = [baseElements];			
-			if ( 0 === baseElements.length )
-				return null;
-			var re = new RegExp("( |\t|^)" + className + "( |\t|$)");
-			var nextBaseElements = [];
-			for ( var i = 0; i < baseElements.length; i++ ) {
-				var baseElement = baseElements[i];
-				if ( !baseElement.tagName )
-					continue;
-				if ( re.test(baseElement.className) )
-					return baseElement;
-				for ( var j = 0; j < baseElement.childNodes.length; j++ )
-					nextBaseElements.push(baseElement.childNodes[j]);
-			}
-			if ( "undefined" === typeof maxDepth )
-				return findElementByClassName(nextBaseElements, className);
-			else if ( maxDepth > 0 )
-				return findElementByClassName(nextBaseElements, className, maxDepth-1);
-			else
-				return null;
-		};
-		var ret = findElementByClassName(elem, className);
-		return ret;
-	}-*/;
-	
-	private void doGet(String url, RequestCallback callback) {
-		
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-
-		try {
-			Request response = builder.sendRequest(null, callback);
-		} catch (RequestException e) {
-		}
-	}
-	
-	private native void setInnerHTML(Element holder, String html) /*-{
-		holder.innerHTML = html;
-	}-*/;
 }
