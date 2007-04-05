@@ -1,11 +1,12 @@
 package examples.poll.client;
 
-import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.DOM;
 
 public class TestPoll {
 
 	public void onModuleLoad() {
-		new Poll(RootPanel.get("_poll_holder"), "002");
+		Poll poll = new Poll("002");
+		poll.render(DOM.getElementById("_poll_holder"));
 	}
 
 }
