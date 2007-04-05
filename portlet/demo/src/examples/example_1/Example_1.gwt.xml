@@ -2,7 +2,7 @@
 <module>
 
 	<inherits name="com.google.gwt.user.User"/>
-	<inherits name="portlet.Portlet"/>
+	<inherits name="portlet.PortletContext"/>
 	
 	<entry-point class="examples.example_1.client.Example_1"/>
 
