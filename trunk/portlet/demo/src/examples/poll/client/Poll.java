@@ -2,12 +2,8 @@ package examples.poll.client;
 
 import java.util.Date;
 
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
+import portlet.client.Portlet;
+
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -17,9 +13,9 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class Poll {
+public class Poll implements Portlet {
 
-	private RootPanel container;
+	private AbsolutePanel container;
 	
 	//
 	
@@ -43,22 +39,29 @@ public class Poll {
 
 	private int noCount;
 
-	public Poll(RootPanel container, String pollid) {
-		init(container, pollid);
+	public Poll(String args) {
+		this.pollid = args;
+	}
+	
+	public void render(final Element container) {
+		init(new AbsolutePanel() {
+			{
+			    setElement(container);
+			    onAttach();
+			}
+		});
 	}
 
-	public Poll(String containerid, String pollid) {
-		init(RootPanel.get(containerid), pollid);
-	}
-
-	private void init(RootPanel container, String pollid) {
+	//
+	//--private methods begin
+	//
+	
+	private void init(AbsolutePanel container) {
 		this.container = container;
-		this.pollid = pollid;
 		this.initStage2();
 	}
 	
-	// abstract
-	protected void initStage2() {
+	private void initStage2() {
 
 		lblQuestion = new Label();
 		this.container.add(lblQuestion);
