@@ -2,9 +2,10 @@ package portlet.client;
 
 import portlet.client.impl.DefaultPortletContext;
 
+import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 
-public class PortletContextHolder {
+public class PortletContextHolder implements EntryPoint {
 
 	private static native JavaScriptObject get() /*-{
 		return $wnd.__portlet_context || null;
@@ -14,7 +15,7 @@ public class PortletContextHolder {
 		$wnd.__portlet_context = jsoPortletContext;
 	}-*/;
 	
-	static void init() {
+	public void onModuleLoad() {
 		JavaScriptObject jso = get();
 		if ( null == jso ) {
 			PortletContext pc = new DefaultPortletContext();

@@ -1,7 +1,7 @@
 
 <module>
 
-	<inherits name="portlet.Portlet"/>
+	<inherits name="portlet.PortletContext"/>
 
 	<inherits name="com.google.gwt.user.User"/>
 	<inherits name="com.google.gwt.http.HTTP"/>
