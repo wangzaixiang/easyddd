@@ -1,9 +1,0 @@
-
-<module>
-
-	<inherits name="com.google.gwt.user.User"/>
-	<inherits name="portlet.Portlet"/>
-	
-	<entry-point class="examples.portlet_1.client.Portlet_1"/>
-
-</module>
