@@ -3,4 +3,8 @@
 
 	<inherits name="com.google.gwt.user.User"/>
 	
+	<generate-with class="portlet.rebind.PortableHelperGenerator">
+		<when-type-assignable class="portlet.client.Portable"/>
+	</generate-with>
+	
 </module>
