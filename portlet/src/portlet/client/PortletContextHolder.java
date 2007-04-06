@@ -8,6 +8,10 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 public class PortletContextHolder implements EntryPoint {
 
+	static {
+		GWT.create(PortletContext.class);
+	}
+	
 	private static native JavaScriptObject get() /*-{
 		return $wnd.__portlet_context || null;
 	}-*/;
@@ -17,23 +21,20 @@ public class PortletContextHolder implements EntryPoint {
 	}-*/;
 	
 	private static native JavaScriptObject doExport(PortletContext pc) /*-{
-		return @portlet.client.PortletContextHelper::doExport(Lportlet/client/PortletContext;)(pc);
+		return @portlet.client.PortletContext_Helper::doExport(Lportlet/client/PortletContext;)(pc);
 	}-*/;
 	
 	private static native PortletContext doImport(JavaScriptObject jso) /*-{
-		return @portlet.client.PortletContextHelper::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(jso);
+		return @portlet.client.PortletContext_Helper::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(jso);
 	}-*/;
 
-	private static native void print(Object obj) /*-{
-		var s = obj.@portlet.client.PortletContext_Helper::getString()();
-		$wnd.alert(s);
+	private static native void print() /*-{
+		
 	}-*/;
 		
 	public void onModuleLoad() {
 		JavaScriptObject jso = get();
-		if ( null == jso ) {
-			Object obj = GWT.create(PortletContext.class);
-			print(obj);
+		if ( null == jso ) {			
 			PortletContext pc = new DefaultPortletContext();
 			jso = doExport(pc);
 			put(jso);
