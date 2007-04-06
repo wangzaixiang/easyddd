@@ -1,0 +1,8 @@
+
+<module>
+
+	<inherits name="portlet.PortletContext"/>
+	
+	<entry-point class="portlet.client.PortletContextHolder"/>
+	
+</module>
