@@ -5,6 +5,6 @@ package portlet.client;
  * @author whg
  *
  */
-public interface PortableObjectHelper {
+public interface Portable {
 
 }

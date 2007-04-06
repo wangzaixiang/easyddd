@@ -21,7 +21,7 @@
 	</target>
 	
 	<target name="compile" depends="prepare">
-		<compile-module module-name="portlet.PortletContext"/>
+		<compile-module module-name="portlet.PortletContextImpl"/>
 		<compile-module module-name="examples.poll.PollInfo"/>
 		<compile-module module-name="examples.example_1.Example_1"/>
 	</target>

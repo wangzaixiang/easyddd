@@ -3,6 +3,4 @@
 
 	<inherits name="com.google.gwt.user.User"/>
 	
-	<entry-point class="portlet.client.PortletContextHolder"/>
-	
 </module>
