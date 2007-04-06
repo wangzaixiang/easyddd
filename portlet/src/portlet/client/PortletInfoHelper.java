@@ -5,7 +5,7 @@ package portlet.client;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
-public class PortletInfoHelper implements Portable {
+public class PortletInfoHelper {
 	
 	public static native JavaScriptObject doExport(PortletInfo pi) /*-{
 		return {
