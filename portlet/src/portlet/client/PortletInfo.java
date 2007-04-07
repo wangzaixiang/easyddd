@@ -1,9 +1,11 @@
 package portlet.client;
 
+import com.google.gwt.user.client.Element;
+
 
 public interface PortletInfo extends Portable {
 	
 	String getName();
 	
-	void create(String containerId, String dataId);
+	void create(Element contianer, String dataId);
 }

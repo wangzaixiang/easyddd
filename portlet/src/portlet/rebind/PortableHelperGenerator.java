@@ -14,6 +14,7 @@ import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 
@@ -45,9 +46,8 @@ public class PortableHelperGenerator extends Generator {
 
 		// get imports
 		Set portables = getPortables(requestedClass);
-		Set imports = new HashSet(portables);
-		imports.add(JavaScriptObject.class);
-		imports.add(GWT.class);
+		Set imports = getImports();
+		imports.addAll(portables);
 
 		// get source writer
 		SourceWriter sourceWriter = getSourceWriter(logger, context, imports,
@@ -72,22 +72,32 @@ public class PortableHelperGenerator extends Generator {
 		return generatedFullName;
 	}
 
-	private Set getPortables(Class requestedClass) {
+	private Set getImports() {
 
 		Set imports = new HashSet();
+
+		imports.add(JavaScriptObject.class);
+		imports.add(Element.class);
+		imports.add(GWT.class);
+		return imports;
+	}
+
+	private Set getPortables(Class requestedClass) {
+
+		Set portables = new HashSet();
 
 		Method[] methods = requestedClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			Class returnType = methods[i].getReturnType();
 			if (isPortable(returnType))
-				imports.add(returnType);
+				portables.add(returnType);
 			Class[] paramTypes = methods[i].getParameterTypes();
 			for (int j = 0; j < paramTypes.length; j++) {
 				if (isPortable(paramTypes[j]))
-					imports.add(paramTypes[j]);
+					portables.add(paramTypes[j]);
 			}
 		}
-		return imports;
+		return portables;
 	}
 
 	private SourceWriter getSourceWriter(TreeLogger logger,

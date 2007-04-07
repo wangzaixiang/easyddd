@@ -5,7 +5,7 @@ import portlet.client.PortletContextHolder;
 import portlet.client.PortletInfo;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Element;
 
 public class PollInfo implements PortletInfo, EntryPoint {
 
@@ -17,9 +17,9 @@ public class PollInfo implements PortletInfo, EntryPoint {
 		PortletContext pc = PortletContextHolder.getPortletContext();
 		pc.register(this);
 	}
-	
-	public void create(String containerID, String dataID) {
+
+	public void create(Element container, String dataID) {
 		Poll poll = new Poll(dataID);
-		poll.render(DOM.getElementById(containerID));
+		poll.render(container);
 	}
 }
