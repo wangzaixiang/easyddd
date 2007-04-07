@@ -22,6 +22,7 @@
 	<target name="prepare">
 		<mkdir dir="build"/>
 		<mkdir dir="build/www"/>
+		<mkdir dir="build/gen"/>
 	</target>
 	
 	<target name="compile" depends="prepare">
@@ -41,6 +42,8 @@
 	
 				<arg value="-out"/>
 				<arg value="${basedir}/build/www"/>
+				<arg value="-gen"/>
+				<arg value="${basedir}/build/gen"/>
 				<!-- arg value="-style"/>
 				<arg value="DETAILED"/ -->
 				<arg value="@{module-name}"/>

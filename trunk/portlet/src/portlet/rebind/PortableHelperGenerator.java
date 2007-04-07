@@ -51,12 +51,17 @@ public class PortableHelperGenerator extends Generator {
 			return generatedFullName;
 
 		// do generate
+		sourceWriter.println();
 		generateStaticInitializer(sourceWriter, imports);
+		sourceWriter.println();
 		generateDoExport(sourceWriter, packageName, requestedSimpleName,
 				requestedClass);
+		sourceWriter.println();
 		generateDoImport(sourceWriter, requestedSimpleName);
+		sourceWriter.println();
 		generateStub(sourceWriter, requestedSimpleName, requestedClass,
 				generatedFullName);
+		sourceWriter.println();
 		sourceWriter.commit(logger);
 
 		return generatedFullName;
@@ -191,11 +196,15 @@ public class PortableHelperGenerator extends Generator {
 		sourceWriter.println("public static class Stub implements "
 				+ requestedSimpleName + " {");
 		sourceWriter.indent();
+		sourceWriter.println();
 		sourceWriter.println("private JavaScriptObject jso;");
+		sourceWriter.println();
 		generateStubConstructor(sourceWriter);
+		sourceWriter.println();
 		Method[] methods = requestedClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			generateStubMethod(sourceWriter, methods[i], generatedFullName);
+			sourceWriter.println();
 		}
 		sourceWriter.outdent();
 		sourceWriter.println("}");
