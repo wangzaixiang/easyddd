@@ -2,6 +2,10 @@
 <project default="compile">
 	
 	<property file="portlet.properties"/>
+	<!-- The following properties should be defined in 'portlet.properties' -->
+	<!-- gwt.home: The GWT install directory                                -->
+	<!--                                                                    -->
+	
 	
 	<path id="gwt.path">
 		<pathelement path="${gwt.home}/gwt-dev-linux.jar"/>
