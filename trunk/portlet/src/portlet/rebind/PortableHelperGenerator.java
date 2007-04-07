@@ -161,14 +161,11 @@ public class PortableHelperGenerator extends Generator {
 			for (int j = 0; j < paramList.length; j++) {
 				translatedParams += translateName(paramList[j].getName());
 				if (isPortable(paramList[j]))
-					sourceWriter
-							.println("arg"
-									+ j
-									+ " = @"
-									+ paramList[j].getName()
-									+ "_Helper"
-									+ "::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(arg"
-									+ j + ");");
+					sourceWriter.println("arg" + j + " = @"
+							+ paramList[j].getName() + "_Helper"
+							+ "::doImport("
+							+ translateName(JavaScriptObject.class.getName())
+							+ ")(arg" + j + ");");
 			}
 			sourceWriter.println("var ret = jo.@" + packageName + "."
 					+ requestedSimpleName + "::" + methods[i].getName() + "("
@@ -259,12 +256,11 @@ public class PortableHelperGenerator extends Generator {
 				+ ".Stub::jso." + method.getName() + "(" + args + ");");
 		if (!isVoid(method.getReturnType())) {
 			if (isPortable(method.getReturnType()))
-				sourceWriter
-						.println("return "
-								+ "@"
-								+ method.getReturnType().getName()
-								+ "_Helper"
-								+ "::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(ret);");
+				sourceWriter.println("return " + "@"
+						+ method.getReturnType().getName() + "_Helper"
+						+ "::doImport("
+						+ translateName(JavaScriptObject.class.getName())
+						+ ")(ret);");
 			else
 				sourceWriter.println("return ret;");
 		}
