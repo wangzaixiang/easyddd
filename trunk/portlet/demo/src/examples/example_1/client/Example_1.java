@@ -4,6 +4,7 @@ import portlet.client.PortletContext;
 import portlet.client.PortletContextHolder;
 import portlet.client.PortletInfo;
 
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 
 public class Example_1 {
@@ -14,8 +15,8 @@ public class Example_1 {
 		if ( null == pollInfo ) {
 			;
 		} else {
-			pollInfo.create("_poll_container_1", "001");
-			pollInfo.create("_poll_container_2", "002");
+			pollInfo.create(DOM.getElementById("_poll_container_1"), "001");
+			pollInfo.create(DOM.getElementById("_poll_container_2"), "002");
 		}
 	}
 	
