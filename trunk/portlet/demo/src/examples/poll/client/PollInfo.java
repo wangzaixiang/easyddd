@@ -1,5 +1,6 @@
 package examples.poll.client;
 
+import portlet.client.Portlet;
 import portlet.client.PortletContext;
 import portlet.client.PortletContextHolder;
 import portlet.client.PortletInfo;
@@ -18,8 +19,8 @@ public class PollInfo implements PortletInfo, EntryPoint {
 		pc.register(this);
 	}
 
-	public void create(Element container, String dataID) {
+	public Portlet create(String dataID) {
 		Poll poll = new Poll(dataID);
-		poll.render(container);
+		return poll;
 	}
 }
