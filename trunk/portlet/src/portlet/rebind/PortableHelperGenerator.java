@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import portlet.client.Portable;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.ext.Generator;
@@ -42,7 +44,10 @@ public class PortableHelperGenerator extends Generator {
 			return requestedFullName;
 
 		// get imports
-		Set imports = getImports(requestedClass);
+		Set portables = getPortables(requestedClass);
+		Set imports = new HashSet(portables);
+		imports.add(JavaScriptObject.class);
+		imports.add(GWT.class);
 
 		// get source writer
 		SourceWriter sourceWriter = getSourceWriter(logger, context, imports,
@@ -52,7 +57,7 @@ public class PortableHelperGenerator extends Generator {
 
 		// do generate
 		sourceWriter.println();
-		generateStaticInitializer(sourceWriter, imports);
+		generateStaticInitializer(sourceWriter, portables);
 		sourceWriter.println();
 		generateDoExport(sourceWriter, packageName, requestedSimpleName,
 				requestedClass);
@@ -67,18 +72,18 @@ public class PortableHelperGenerator extends Generator {
 		return generatedFullName;
 	}
 
-	private Set getImports(Class requestedClass) {
+	private Set getPortables(Class requestedClass) {
 
 		Set imports = new HashSet();
 
 		Method[] methods = requestedClass.getMethods();
 		for (int i = 0; i < methods.length; i++) {
 			Class returnType = methods[i].getReturnType();
-			if (shouldImport(returnType))
+			if (isPortable(returnType))
 				imports.add(returnType);
 			Class[] paramTypes = methods[i].getParameterTypes();
 			for (int j = 0; j < paramTypes.length; j++) {
-				if (shouldImport(paramTypes[j]))
+				if (isPortable(paramTypes[j]))
 					imports.add(paramTypes[j]);
 			}
 		}
@@ -105,8 +110,6 @@ public class PortableHelperGenerator extends Generator {
 			Class typeToImport = (Class) iter.next();
 			composerFactory.addImport(typeToImport.getName());
 		}
-		composerFactory.addImport(JavaScriptObject.class.getName());
-		composerFactory.addImport(GWT.class.getName());
 
 		// create source writer
 		SourceWriter sourceWriter = composerFactory.createSourceWriter(ctx,
@@ -147,28 +150,27 @@ public class PortableHelperGenerator extends Generator {
 			String translatedParams = "";
 			for (int j = 0; j < paramList.length; j++) {
 				translatedParams += translateName(paramList[j].getName());
-				if (isPrimitive(paramList[j]))
-					continue;
-				sourceWriter
-						.println("arg"
-								+ j
-								+ " = @"
-								+ paramList[j].getName()
-								+ "_Helper"
-								+ "::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(arg"
-								+ j + ");");
+				if (isPortable(paramList[j]))
+					sourceWriter
+							.println("arg"
+									+ j
+									+ " = @"
+									+ paramList[j].getName()
+									+ "_Helper"
+									+ "::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(arg"
+									+ j + ");");
 			}
 			sourceWriter.println("var ret = jo.@" + packageName + "."
 					+ requestedSimpleName + "::" + methods[i].getName() + "("
 					+ translatedParams + ")(" + params + ");");
 			Class returnType = methods[i].getReturnType();
 			if (!isVoid(returnType)) {
-				if (isPrimitive(returnType))
-					sourceWriter.println("return ret;");
-				else
+				if (isPortable(returnType))
 					sourceWriter.println("return " + "@" + returnType.getName()
 							+ "_Helper" + "::doExport("
 							+ translateName(returnType.getName()) + ")(ret);");
+				else
+					sourceWriter.println("return ret;");
 			}
 			sourceWriter.outdent();
 			sourceWriter.print("}" + ((i < methods.length - 1) ? "," : ""));
@@ -237,79 +239,35 @@ public class PortableHelperGenerator extends Generator {
 				+ method.getName() + "(" + params + ") /*-{");
 		sourceWriter.indent();
 		for (int j = 0; j < paramList.length; j++) {
-			if (isPrimitive(paramList[j]))
-				continue;
-			sourceWriter.println("arg" + j + " = @" + paramList[j].getName()
-					+ "_Helper" + "::doExport("
-					+ translateName(paramList[j].getName()) + ")(arg" + j
-					+ ");");
+			if (isPortable(paramList[j]))
+				sourceWriter.println("arg" + j + " = @"
+						+ paramList[j].getName() + "_Helper" + "::doExport("
+						+ translateName(paramList[j].getName()) + ")(arg" + j
+						+ ");");
 		}
 		sourceWriter.println("var ret = this.@" + generatedFullName
 				+ ".Stub::jso." + method.getName() + "(" + args + ");");
 		if (!isVoid(method.getReturnType())) {
-			if (isPrimitive(method.getReturnType()))
-				sourceWriter.println("return ret;");
-			else
+			if (isPortable(method.getReturnType()))
 				sourceWriter
 						.println("return "
 								+ "@"
 								+ method.getReturnType().getName()
 								+ "_Helper"
 								+ "::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(ret);");
+			else
+				sourceWriter.println("return ret;");
 		}
 		sourceWriter.outdent();
 		sourceWriter.println("}-*/;");
-	}
-
-	private boolean shouldImport(Class type) {
-		return !isPrimitive(type);
 	}
 
 	private boolean isVoid(Class type) {
 		return void.class.equals(type);
 	}
 
-	private boolean isPrimitive(Class type) {
-		if (void.class.equals(type)) {
-			;
-		} else if (boolean.class.equals(type)) {
-			;
-		} else if (short.class.equals(type)) {
-			;
-		} else if (int.class.equals(type)) {
-			;
-		} else if (long.class.equals(type)) {
-			;
-		} else if (float.class.equals(type)) {
-			;
-		} else if (double.class.equals(type)) {
-			;
-		} else if (char.class.equals(type)) {
-			;
-		} else if (byte.class.equals(type)) {
-			;
-		} else if (String.class.equals(type)) {
-			;
-		} else if (Boolean.class.equals(type)) {
-			;
-		} else if (Byte.class.equals(type)) {
-			;
-		} else if (Character.class.equals(type)) {
-			;
-		} else if (Short.class.equals(type)) {
-			;
-		} else if (Integer.class.equals(type)) {
-			;
-		} else if (Long.class.equals(type)) {
-			;
-		} else if (Double.class.equals(type)) {
-			;
-		} else if (Float.class.equals(type)) {
-			;
-		} else {
-			return false;
-		}
-		return true;
+	private boolean isPortable(Class type) {
+		return Portable.class.isAssignableFrom(type);
 	}
 
 	private String translateName(String typeName) {
