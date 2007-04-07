@@ -12,195 +12,205 @@ import com.google.gwt.core.ext.Generator;
 import com.google.gwt.core.ext.GeneratorContext;
 import com.google.gwt.core.ext.TreeLogger;
 import com.google.gwt.core.ext.UnableToCompleteException;
-import com.google.gwt.core.ext.typeinfo.JType;
-import com.google.gwt.core.ext.typeinfo.TypeOracle;
 import com.google.gwt.user.rebind.ClassSourceFileComposerFactory;
 import com.google.gwt.user.rebind.SourceWriter;
 
 public class PortableHelperGenerator extends Generator {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see com.google.gwt.core.ext.Generator#generate(com.google.gwt.core.ext.TreeLogger,
-	 *      com.google.gwt.core.ext.GeneratorContext, java.lang.String)
-	 */
 	public String generate(TreeLogger logger, GeneratorContext context,
 			String typeName) throws UnableToCompleteException {
 
-		TypeOracle typeOracle = context.getTypeOracle();
-		assert (typeOracle != null);
-
-		JType requestedType = typeOracle.findType(typeName);
-
-		if (null == requestedType.isInterface())
-			return typeName;
+		final String TYPE_SUFFIX = "_Helper";
 
 		// init
-		int nameIndex = typeName.lastIndexOf('.');
-		packageName = typeName.substring(0, nameIndex);
-		originalClassName = typeName.substring(nameIndex + 1);
-		className = originalClassName + TYPE_SUFFIX;
-		qualifiedName = typeName + TYPE_SUFFIX;
+		String requestedFullName = typeName;
+		Class requestedClass = null;
+		try {
+			requestedClass = Class.forName(requestedFullName);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		String packageName = requestedFullName.substring(0, requestedFullName
+				.lastIndexOf('.'));
+		String requestedSimpleName = requestedFullName
+				.substring(requestedFullName.lastIndexOf('.') + 1);
+		String generatedSimpleName = requestedSimpleName + TYPE_SUFFIX;
+		String generatedFullName = requestedFullName + TYPE_SUFFIX;
+
+		// must be a interface
+		if (!requestedClass.isInterface())
+			return requestedFullName;
+
+		// get imports
+		Set imports = getImports(requestedClass);
 
 		// get source writer
-		importSet.clear();
-		SourceWriter sw = getSourceWriter(logger, context, typeName);
-		if (null == sw) {
-			return getQualifiedName();
+		SourceWriter sourceWriter = getSourceWriter(logger, context, imports,
+				packageName, generatedSimpleName);
+		if (null == sourceWriter)
+			return generatedFullName;
+
+		// do generate
+		generateStaticInitializer(sourceWriter, imports);
+		generateDoExport(sourceWriter, packageName, requestedSimpleName,
+				requestedClass);
+		generateDoImport(sourceWriter, requestedSimpleName);
+		generateStub(sourceWriter, requestedSimpleName, requestedClass,
+				generatedFullName);
+		sourceWriter.commit(logger);
+
+		return generatedFullName;
+	}
+
+	private Set getImports(Class requestedClass) {
+
+		Set imports = new HashSet();
+
+		Method[] methods = requestedClass.getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			Class returnType = methods[i].getReturnType();
+			if (shouldImport(returnType))
+				imports.add(returnType);
+			Class[] paramTypes = methods[i].getParameterTypes();
+			for (int j = 0; j < paramTypes.length; j++) {
+				if (shouldImport(paramTypes[j]))
+					imports.add(paramTypes[j]);
+			}
+		}
+		return imports;
+	}
+
+	private SourceWriter getSourceWriter(TreeLogger logger,
+			GeneratorContext ctx, Set imports, String packageName,
+			String generatedSimpleName) {
+
+		// get writer
+		PrintWriter printWriter = ctx.tryCreate(logger, packageName,
+				generatedSimpleName);
+		if (printWriter == null) {
+			return null;
 		}
 
-		// write
-		generate(sw);
-		sw.commit(logger);
+		// get composer factory
+		ClassSourceFileComposerFactory composerFactory = new ClassSourceFileComposerFactory(
+				packageName, generatedSimpleName);
 
-		return getQualifiedName();
-	}
-
-	private void generate(SourceWriter sw) {
-		generateStaticInitializer(sw);
-		generateDoExport(sw);
-		generateDoImport(sw);
-		generateStub(sw);
-	}
-
-	private void generateStaticInitializer(SourceWriter sw) {
-		sw.println("static {");
-		sw.indent();
-		for (Iterator iter = importSet.iterator(); iter.hasNext();) {
-			String name = (String) iter.next();
-			name = name.substring(name.lastIndexOf('.') + 1);
-			// System.out.println("============" + name);
-			sw.println("GWT.create(" + name + ".class);");
+		// add imports required
+		for (Iterator iter = imports.iterator(); iter.hasNext();) {
+			Class typeToImport = (Class) iter.next();
+			composerFactory.addImport(typeToImport.getName());
 		}
-		sw.outdent();
-		sw.println("}");
+		composerFactory.addImport(JavaScriptObject.class.getName());
+		composerFactory.addImport(GWT.class.getName());
+
+		// create source writer
+		SourceWriter sourceWriter = composerFactory.createSourceWriter(ctx,
+				printWriter);
+		return sourceWriter;
 	}
 
-	private void generateDoExport(SourceWriter sw) {
-		sw.println("public static native JavaScriptObject doExport("
-				+ originalClassName + " jo) /*-{");
-		sw.indent();
-		sw.println("return {");
-		sw.indent();
-		try {
-			Class cls = Class.forName(packageName + "." + originalClassName);
-			Method[] methods = cls.getMethods();
-			for (int i = 0; i < methods.length; i++) {
-				String params = "";
-				Class[] paramList = methods[i].getParameterTypes();
-				for (int j = 0; j < paramList.length; j++) {
-					params += "arg" + j
-							+ ((j < paramList.length - 1) ? ", " : "");
-				}
-				sw.println(methods[i].getName() + ": function(" + params
-						+ ") {");
-				sw.indent();
-				String translatedParams = "";
-				for (int j = 0; j < paramList.length; j++) {
-					translatedParams += translateName(paramList[j].getName());
-					if (isPrimitive(paramList[j]))
-						continue;
-					// var piImported =
-					// @portlet.client.PortletInfoHelper::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(pi);
-					sw
-							.println("arg"
-									+ j
-									+ " = @"
-									+ paramList[j].getName()
-									+ "_Helper"
-									+ "::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(arg"
-									+ j + ");");
-				}
-				// pc.@portlet.client.PortletContext::register(Lportlet/client/PortletInfo;)(piImported);
-				sw.println("var ret = jo.@" + packageName + "."
-						+ originalClassName + "::" + methods[i].getName() + "("
-						+ translatedParams + ")(" + params + ");");
-				if (!isVoid(methods[i].getReturnType())) {
-					if (isPrimitive(methods[i].getReturnType()))
-						sw.println("return ret;");
-					else
-						sw.println("return "
-								+ "@"
-								+ methods[i].getReturnType().getName()
+	private void generateStaticInitializer(SourceWriter sourceWriter,
+			Set imports) {
+		sourceWriter.println("static {");
+		sourceWriter.indent();
+		for (Iterator iter = imports.iterator(); iter.hasNext();) {
+			Class importedType = (Class) iter.next();
+			sourceWriter.println("GWT.create(" + importedType.getSimpleName()
+					+ ".class);");
+		}
+		sourceWriter.outdent();
+		sourceWriter.println("}");
+	}
+
+	private void generateDoExport(SourceWriter sourceWriter,
+			String packageName, String requestedSimpleName, Class requestedClass) {
+		sourceWriter.println("public static native JavaScriptObject doExport("
+				+ requestedSimpleName + " jo) /*-{");
+		sourceWriter.indent();
+		sourceWriter.println("return {");
+		sourceWriter.indent();
+		Method[] methods = requestedClass.getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			String params = "";
+			Class[] paramList = methods[i].getParameterTypes();
+			for (int j = 0; j < paramList.length; j++) {
+				params += "arg" + j + ((j < paramList.length - 1) ? ", " : "");
+			}
+			sourceWriter.println(methods[i].getName() + ": function(" + params
+					+ ") {");
+			sourceWriter.indent();
+			String translatedParams = "";
+			for (int j = 0; j < paramList.length; j++) {
+				translatedParams += translateName(paramList[j].getName());
+				if (isPrimitive(paramList[j]))
+					continue;
+				sourceWriter
+						.println("arg"
+								+ j
+								+ " = @"
+								+ paramList[j].getName()
 								+ "_Helper"
-								+ "::doExport(L"
-								+ methods[i].getReturnType().getName().replace(
-										'.', '/') + ";)(ret);");
-				}
-				sw.outdent();
-				sw.print("}" + ((i < methods.length - 1) ? "," : ""));
-				sw.println();
+								+ "::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(arg"
+								+ j + ");");
 			}
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
+			sourceWriter.println("var ret = jo.@" + packageName + "."
+					+ requestedSimpleName + "::" + methods[i].getName() + "("
+					+ translatedParams + ")(" + params + ");");
+			Class returnType = methods[i].getReturnType();
+			if (!isVoid(returnType)) {
+				if (isPrimitive(returnType))
+					sourceWriter.println("return ret;");
+				else
+					sourceWriter.println("return " + "@" + returnType.getName()
+							+ "_Helper" + "::doExport("
+							+ translateName(returnType.getName()) + ")(ret);");
+			}
+			sourceWriter.outdent();
+			sourceWriter.print("}" + ((i < methods.length - 1) ? "," : ""));
+			sourceWriter.println();
 		}
-		sw.outdent();
-		sw.println("};");
-		sw.outdent();
-		sw.println("}-*/;");
+		sourceWriter.outdent();
+		sourceWriter.println("};");
+		sourceWriter.outdent();
+		sourceWriter.println("}-*/;");
 	}
 
-	private String translateName(String name) {
-		if (name.indexOf('.') > 0)
-			return "L" + name.replace('.', '/') + ";";
-		else if (name.equals("byte"))
-			return "B";
-		else if (name.equals("char"))
-			return "C";
-		else if (name.equals("int"))
-			return "I";
-		else if (name.equals("short"))
-			return "S";
-		else if (name.equals("long"))
-			return "J";
-		else if (name.equals("float"))
-			return "F";
-		else if (name.equals("double"))
-			return "D";
-		else if (name.equals("boolean"))
-			return "Z";
-		else
-			throw new RuntimeException();
-	}
-
-	private void generateDoImport(SourceWriter sw) {
-		sw.println("public static " + originalClassName
+	private void generateDoImport(SourceWriter sourceWriter,
+			String requestedSimpleName) {
+		sourceWriter.println("public static " + requestedSimpleName
 				+ " doImport(JavaScriptObject jso) {");
-		sw.indent();
-		sw.println("return new Stub(jso);");
-		sw.outdent();
-		sw.println("}");
+		sourceWriter.indent();
+		sourceWriter.println("return new Stub(jso);");
+		sourceWriter.outdent();
+		sourceWriter.println("}");
 	}
 
-	private void generateStub(SourceWriter sw) {
-		sw.println("public static class Stub implements " + originalClassName
-				+ " {");
-		sw.indent();
-		sw.println("private JavaScriptObject jso;");
-		generateStubConstructor(sw);
-		try {
-			Class cls = Class.forName(packageName + "." + originalClassName);
-			Method[] methods = cls.getMethods();
-			for (int i = 0; i < methods.length; i++) {
-				generateStubMethod(sw, methods[i]);
-			}
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
+	private void generateStub(SourceWriter sourceWriter,
+			String requestedSimpleName, Class requestedClass,
+			String generatedFullName) {
+		sourceWriter.println("public static class Stub implements "
+				+ requestedSimpleName + " {");
+		sourceWriter.indent();
+		sourceWriter.println("private JavaScriptObject jso;");
+		generateStubConstructor(sourceWriter);
+		Method[] methods = requestedClass.getMethods();
+		for (int i = 0; i < methods.length; i++) {
+			generateStubMethod(sourceWriter, methods[i], generatedFullName);
 		}
-		sw.outdent();
-		sw.println("}");
+		sourceWriter.outdent();
+		sourceWriter.println("}");
 	}
 
-	private void generateStubConstructor(SourceWriter sw) {
-		sw.println("public Stub(JavaScriptObject jso) {");
-		sw.indent();
-		sw.println("this.jso = jso;");
-		sw.outdent();
-		sw.println("}");
+	private void generateStubConstructor(SourceWriter sourceWriter) {
+		sourceWriter.println("public Stub(JavaScriptObject jso) {");
+		sourceWriter.indent();
+		sourceWriter.println("this.jso = jso;");
+		sourceWriter.outdent();
+		sourceWriter.println("}");
 	}
 
-	private void generateStubMethod(SourceWriter sw, Method method) {
+	private void generateStubMethod(SourceWriter sourceWriter, Method method,
+			String generatedFullName) {
 		String returnType = method.getReturnType().getName();
 		if (returnType.indexOf('.') > 0)
 			returnType = returnType.substring(returnType.lastIndexOf('.') + 1);
@@ -214,86 +224,36 @@ public class PortableHelperGenerator extends Generator {
 					+ ((i < paramList.length - 1) ? "," : "");
 			args += "arg" + i + ((i < paramList.length - 1) ? "," : "");
 		}
-		sw.println("public native " + returnType + " " + method.getName() + "("
-				+ params + ") /*-{");
-		sw.indent();
+		sourceWriter.println("public native " + returnType + " "
+				+ method.getName() + "(" + params + ") /*-{");
+		sourceWriter.indent();
 		for (int j = 0; j < paramList.length; j++) {
 			if (isPrimitive(paramList[j]))
 				continue;
-			// var piExported =
-			// @portlet.client.PortletInfoHelper::doExport(Lportlet/client/PortletInfo;)(pi);
-			sw.println("arg" + j + " = @" + paramList[j].getName() + "_Helper"
-					+ "::doExport(L" + paramList[j].getName().replace('.', '/')
-					+ ";)(arg" + j + ");");
+			sourceWriter.println("arg" + j + " = @" + paramList[j].getName()
+					+ "_Helper" + "::doExport("
+					+ translateName(paramList[j].getName()) + ")(arg" + j
+					+ ");");
 		}
-		// this.@portlet.client.PortletContextHelper.Stub::jso.register(piExported);
-		sw.println("var ret = this.@" + qualifiedName + ".Stub::jso."
-				+ method.getName() + "(" + args + ");");
+		sourceWriter.println("var ret = this.@" + generatedFullName
+				+ ".Stub::jso." + method.getName() + "(" + args + ");");
 		if (!isVoid(method.getReturnType())) {
 			if (isPrimitive(method.getReturnType()))
-				sw.println("return ret;");
+				sourceWriter.println("return ret;");
 			else
-				// return
-				//
-				// @portlet.client.PortletInfoHelper::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(pi);
-				sw
+				sourceWriter
 						.println("return "
 								+ "@"
 								+ method.getReturnType().getName()
 								+ "_Helper"
 								+ "::doImport(Lcom/google/gwt/core/client/JavaScriptObject;)(ret);");
 		}
-		sw.outdent();
-		sw.println("}-*/;");
+		sourceWriter.outdent();
+		sourceWriter.println("}-*/;");
 	}
 
-	private String getQualifiedName() {
-		return qualifiedName;
-	}
-
-	private SourceWriter getSourceWriter(TreeLogger logger,
-			GeneratorContext ctx, String typeName) {
-
-		PrintWriter printWriter = ctx.tryCreate(logger, packageName, className);
-		if (printWriter == null) {
-			return null;
-		}
-
-		ClassSourceFileComposerFactory composerFactory = new ClassSourceFileComposerFactory(
-				packageName, className);
-
-		try {
-			Class cls = Class.forName(typeName);
-			Method[] methods = cls.getMethods();
-			for (int i = 0; i < methods.length; i++) {
-				Class typeReturn = methods[i].getReturnType();
-				addImport(composerFactory, typeReturn);
-				Class[] typeParams = methods[i].getParameterTypes();
-				for (int j = 0; j < typeParams.length; j++) {
-					addImport(composerFactory, typeParams[j]);
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-
-		composerFactory.addImport(JavaScriptObject.class.getName());
-		composerFactory.addImport(GWT.class.getName());
-		composerFactory.addImport(typeName);
-		// composerFactory.addImplementedInterface("Serializer");
-
-		SourceWriter sw = composerFactory.createSourceWriter(ctx, printWriter);
-		// return new SourceWriterWrapper(sw);
-		return sw;
-	}
-
-	private void addImport(ClassSourceFileComposerFactory composerFactory,
-			Class type) {
-		if (isPrimitive(type))
-			return;
-		composerFactory.addImport(type.getName());
-		// composerFactory.addImport(type.getName() + "_Helper");
-		importSet.add(type.getName());
+	private boolean shouldImport(Class type) {
+		return !isPrimitive(type);
 	}
 
 	private boolean isVoid(Class type) {
@@ -343,15 +303,27 @@ public class PortableHelperGenerator extends Generator {
 		return true;
 	}
 
-	private String packageName;
+	private String translateName(String typeName) {
+		if (typeName.indexOf('.') > 0)
+			return "L" + typeName.replace('.', '/') + ";";
+		else if (typeName.equals("byte"))
+			return "B";
+		else if (typeName.equals("char"))
+			return "C";
+		else if (typeName.equals("int"))
+			return "I";
+		else if (typeName.equals("short"))
+			return "S";
+		else if (typeName.equals("long"))
+			return "J";
+		else if (typeName.equals("float"))
+			return "F";
+		else if (typeName.equals("double"))
+			return "D";
+		else if (typeName.equals("boolean"))
+			return "Z";
+		else
+			throw new RuntimeException();
+	}
 
-	private String className;
-
-	private String originalClassName;
-
-	private String qualifiedName;
-
-	private static final String TYPE_SUFFIX = "_Helper";
-
-	private Set importSet = new HashSet();
 }
