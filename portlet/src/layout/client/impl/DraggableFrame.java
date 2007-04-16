@@ -1,24 +1,32 @@
-package portlet.client.impl;
+package layout.client.impl;
 
-import portlet.client.PortletFrame;
+import layout.client.Frame;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.EventListener;
+import com.google.gwt.user.client.Window;
 
-public class DraggablePortletFrame implements PortletFrame {
+public class DraggableFrame implements Frame {
 
-	public Element getBodyElement() {		
+	public Element getBodyElement() {
 		return bodyElement;
 	}
 
-	public DraggablePortletFrame(Element container) {
+	public DraggableFrame(DraggableLayoutManager dlm) {
+
+		this.layoutManager = dlm;
+		this.container = dlm.getElement();
 
 		// creat element
 		element = DOM.createDiv();
-		DOM.appendChild(container, element);
+		DOM.appendChild(this.container, element);
 		DOM.setStyleAttribute(element, "position", "absolute");
 		DOM.setStyleAttribute(element, "width", getOuterWidth() + "px");
 		DOM.setStyleAttribute(element, "height", getOuterHeight() + "px");
+		DOM.setStyleAttribute(element, "left", "0px");
+		DOM.setStyleAttribute(element, "top", "0px");
 		DOM.setStyleAttribute(element, "backgroundColor", getBorderColor());
 
 		// create title element
@@ -30,7 +38,17 @@ public class DraggablePortletFrame implements PortletFrame {
 		DOM.setStyleAttribute(title, "left", getBorderWidth() + "px");
 		DOM.setStyleAttribute(title, "top", getBorderWidth() + "px");
 		DOM.setStyleAttribute(title, "backgroundColor", "white");
-		
+
+		//
+		DOM.sinkEvents(title, Event.ONMOUSEDOWN);
+		DOM.setEventListener(title, new EventListener() {
+
+			public void onBrowserEvent(Event event) {
+				moveTask.activate();
+			}
+
+		});
+
 		// create inner element
 		bodyElement = DOM.createDiv();
 		DOM.appendChild(element, bodyElement);
@@ -38,9 +56,16 @@ public class DraggablePortletFrame implements PortletFrame {
 		DOM.setStyleAttribute(bodyElement, "width", getInnerWidth() + "px");
 		DOM.setStyleAttribute(bodyElement, "height", getInnerHeight() + "px");
 		DOM.setStyleAttribute(bodyElement, "left", getBorderWidth() + "px");
-		DOM.setStyleAttribute(bodyElement, "top", ( getBorderWidth() + getTitleHeight() + getGap() ) + "px");
+		DOM.setStyleAttribute(bodyElement, "top", (getBorderWidth()
+				+ getTitleHeight() + getGap())
+				+ "px");
 		DOM.setStyleAttribute(bodyElement, "backgroundColor", "white");
+
+		//
+		moveTask = new MoveTask(element, this.layoutManager);
 	}
+
+	private Task moveTask;
 
 	private Element element;
 
@@ -50,12 +75,14 @@ public class DraggablePortletFrame implements PortletFrame {
 
 	private Element container;
 
+	private DraggableLayoutManager layoutManager;
+
 	// config
 
 	private int getTitleHeight() {
 		return titleHeight;
 	}
-	
+
 	private int getInnerHeight() {
 		return height;
 	}
@@ -83,7 +110,7 @@ public class DraggablePortletFrame implements PortletFrame {
 	private int getGap() {
 		return gap;
 	}
-	
+
 	private int width = 400;
 
 	private int height = 300;
@@ -91,8 +118,8 @@ public class DraggablePortletFrame implements PortletFrame {
 	private int borderWidth = 2;
 
 	private int titleHeight = 20;
-	
+
 	private int gap = 2;
-	
+
 	private String borderColor = "brown";
 }
