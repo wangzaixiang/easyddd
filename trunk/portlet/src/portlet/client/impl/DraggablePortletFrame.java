@@ -7,22 +7,11 @@ import com.google.gwt.user.client.Element;
 
 public class DraggablePortletFrame implements PortletFrame {
 
-	public Element getInnerElement() {
-		if (null == innerElement) {
-			throw new RuntimeException("do render before getInnerElemnet");
-		}
-		return innerElement;
+	public Element getBodyElement() {		
+		return bodyElement;
 	}
 
-	public void render(Element container) {
-		this.container = container;
-		if (null == element)
-			init(this.container);
-		else
-			throw new RuntimeException("can not render the second time");
-	}
-
-	private void init(Element container) {
+	public DraggablePortletFrame(Element container) {
 
 		// creat element
 		element = DOM.createDiv();
@@ -43,21 +32,21 @@ public class DraggablePortletFrame implements PortletFrame {
 		DOM.setStyleAttribute(title, "backgroundColor", "white");
 		
 		// create inner element
-		innerElement = DOM.createDiv();
-		DOM.appendChild(element, innerElement);
-		DOM.setStyleAttribute(innerElement, "position", "absolute");
-		DOM.setStyleAttribute(innerElement, "width", getInnerWidth() + "px");
-		DOM.setStyleAttribute(innerElement, "height", getInnerHeight() + "px");
-		DOM.setStyleAttribute(innerElement, "left", getBorderWidth() + "px");
-		DOM.setStyleAttribute(innerElement, "top", ( getBorderWidth() + getTitleHeight() + getGap() ) + "px");
-		DOM.setStyleAttribute(innerElement, "backgroundColor", "white");
+		bodyElement = DOM.createDiv();
+		DOM.appendChild(element, bodyElement);
+		DOM.setStyleAttribute(bodyElement, "position", "absolute");
+		DOM.setStyleAttribute(bodyElement, "width", getInnerWidth() + "px");
+		DOM.setStyleAttribute(bodyElement, "height", getInnerHeight() + "px");
+		DOM.setStyleAttribute(bodyElement, "left", getBorderWidth() + "px");
+		DOM.setStyleAttribute(bodyElement, "top", ( getBorderWidth() + getTitleHeight() + getGap() ) + "px");
+		DOM.setStyleAttribute(bodyElement, "backgroundColor", "white");
 	}
 
 	private Element element;
 
 	private Element title;
 
-	private Element innerElement;
+	private Element bodyElement;
 
 	private Element container;
 
