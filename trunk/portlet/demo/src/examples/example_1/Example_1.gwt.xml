@@ -3,6 +3,7 @@
 
 	<inherits name="com.google.gwt.user.User"/>
 	<inherits name="portlet.PortletContext"/>
+	<inherits name="layout.Layout"/>
 	
 	<entry-point class="examples.example_1.client.Example_1"/>
 
