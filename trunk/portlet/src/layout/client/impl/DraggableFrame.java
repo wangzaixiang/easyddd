@@ -8,7 +8,7 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Window;
 
-public class DraggableFrame implements Frame {
+public class DraggableFrame implements Frame, EventListener {
 
 	public Element getBodyElement() {
 		return bodyElement;
@@ -28,6 +28,9 @@ public class DraggableFrame implements Frame {
 		DOM.setStyleAttribute(element, "left", "0px");
 		DOM.setStyleAttribute(element, "top", "0px");
 		DOM.setStyleAttribute(element, "backgroundColor", getBorderColor());
+		DOM.setStyleAttribute(element, "borderColor", getBorderColor());
+		DOM.setStyleAttribute(element, "borderStyle", "solid");
+		DOM.setStyleAttribute(element, "borderWidth", "0px");
 
 		// create title element
 		title = DOM.createDiv();
@@ -41,13 +44,9 @@ public class DraggableFrame implements Frame {
 
 		//
 		DOM.sinkEvents(title, Event.ONMOUSEDOWN);
-		DOM.setEventListener(title, new EventListener() {
-
-			public void onBrowserEvent(Event event) {
-				moveTask.activate();
-			}
-
-		});
+		DOM.setEventListener(title, this);
+		DOM.sinkEvents(element, Event.ONMOUSEDOWN);
+		DOM.setEventListener(element, this);
 
 		// create inner element
 		bodyElement = DOM.createDiv();
@@ -63,6 +62,35 @@ public class DraggableFrame implements Frame {
 
 		//
 		moveTask = new MoveTask(element, this.layoutManager);
+	}
+
+	public void onBrowserEvent(Event event) {
+		if (Event.ONMOUSEDOWN == DOM.eventGetType(event)) {
+			final Element fromElement = DOM.eventGetTarget(event);
+			if (fromElement.equals(title)) {
+				moveTask.activate();
+			}
+			if (!isCurrentFrame) {
+				setAsCurrentFrame(true);
+			}
+		}
+	}
+
+	private void setAsCurrentFrame(boolean asCurrent) {
+		isCurrentFrame = asCurrent;
+		if (asCurrent) {
+			DraggableFrame currentFrame = ((DraggableFrame) layoutManager
+					.getCurrentFrame());
+			if (null != currentFrame)
+				currentFrame.setAsCurrentFrame(false);
+			DOM.setStyleAttribute(element, "borderWidth", "1px");
+			DOM.setStyleAttribute(element, "zIndex", "1");
+			layoutManager.setCurrentFrame(this);
+		} else {
+			DOM.setStyleAttribute(element, "borderWidth", "0px");
+			DOM.setStyleAttribute(element, "zIndex", "0");
+			layoutManager.setCurrentFrame(null);
+		}
 	}
 
 	private Task moveTask;
@@ -122,4 +150,6 @@ public class DraggableFrame implements Frame {
 	private int gap = 2;
 
 	private String borderColor = "brown";
+
+	private boolean isCurrentFrame = false;
 }
