@@ -63,6 +63,14 @@ public class DraggableLayoutManager implements LayoutManager, TaskAgent {
 		return currentTask;
 	}
 
+	public void setCurrentFrame(Frame frame) {
+		currentFrame = frame;
+	}
+	
+	public Frame getCurrentFrame() {
+		return currentFrame;
+	}
+	
 	public Frame getFrame(String name) {
 		Frame frame = new DraggableFrame(this);
 		return frame;
@@ -78,4 +86,5 @@ public class DraggableLayoutManager implements LayoutManager, TaskAgent {
 
 	private Task currentTask;
 
+	private Frame currentFrame;
 }
