@@ -18,6 +18,7 @@ public class DraggableLayoutManager implements LayoutManager, TaskAgent {
 		element = DOM.createDiv();
 		DOM.appendChild(this.container, element);
 		DOM.setStyleAttribute(element, "position", "absolute");
+		DOM.setStyleAttribute(element, "overflow", "auto");
 		DOM.setStyleAttribute(element, "width", "100%");
 		DOM.setStyleAttribute(element, "height", "100%");
 		DOM.setStyleAttribute(element, "borderStyle", "solid");
@@ -64,7 +65,7 @@ public class DraggableLayoutManager implements LayoutManager, TaskAgent {
 
 	public Frame getFrame(String name) {
 		Frame frame = new DraggableFrame(this);
-		return null;
+		return frame;
 	}
 
 	Element getElement() {

@@ -44,8 +44,8 @@
 				<arg value="${basedir}/build/www"/>
 				<arg value="-gen"/>
 				<arg value="${basedir}/build/gen"/>
-				<!-- arg value="-style"/>
-				<arg value="DETAILED"/ -->
+				<arg value="-style"/>
+				<arg value="DETAILED"/>
 				<arg value="@{module-name}"/>
 				
 				<classpath>
