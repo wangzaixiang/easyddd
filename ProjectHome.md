@@ -1,0 +1,1 @@
+easyddd is designed to support DDD, it will include a Domain design model based on POJO and javabeans, a GUI framework based on GWT to automate support Domain interaction.
